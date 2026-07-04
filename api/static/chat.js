@@ -117,18 +117,18 @@ async function sendMessage(text) {
             body: JSON.stringify({ message: text }),
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         hideLoading();
 
         if (!response.ok) {
-            appendMessage('assistant', data.error || 'Something went wrong. Please try again.');
+            appendMessage('assistant', data.error || 'Something went wrong.');
             return;
         }
 
-        appendMessage('assistant', data.reply);
+        appendMessage('assistant', data.reply || 'No reply received.');
     } catch (error) {
         hideLoading();
-        appendMessage('assistant', 'Network error. Please check your connection and try again.');
+        appendMessage('assistant', 'Network error. Please try again.');
     } finally {
         updateSendButton();
         messageInput.focus();
