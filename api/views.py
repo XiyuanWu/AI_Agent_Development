@@ -65,8 +65,14 @@ def chat_api(request):
         except Conversation.DoesNotExist:
             return JsonResponse({"error": "Conversation not found."}, status=404)
 
+    messages_for_ai = []
+    if conversation:
+        for msg in conversation.messages.all():
+            messages_for_ai.append({"role": msg.role, "content": msg.content})
+    messages_for_ai.append({"role": "user", "content": message})
+
     try:
-        reply = ask_ai(message)
+        reply = ask_ai(messages_for_ai)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
