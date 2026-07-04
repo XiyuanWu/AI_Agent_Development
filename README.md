@@ -1,4 +1,4 @@
-# AI Agent Development
+# AI Agent Assistant
 
 A full-stack AI chat agent built from scratch with **Django** and **Google Gemini**. This project walks through setting up a Django app, connecting a frontend chat UI, calling an LLM API, saving conversation history, and personalizing responses with mock user profile data.
 
@@ -16,6 +16,9 @@ Live demo flow: open `/chat/`, send messages, switch conversations in the sideba
 - Error handling on backend and frontend
 - Delete conversations from the sidebar menu
 
+## Preview
+
+![Preview](./Preview.png)
 
 ## Tech Stack
 
