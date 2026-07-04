@@ -13,6 +13,14 @@ def chat(request):
     return render(request, "chat.html")
 
 
+def conversations_api(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    conversations = Conversation.objects.values("id", "title")
+    return JsonResponse({"conversations": list(conversations)})
+
+
 def chat_api(request):
     if request.method == "GET":
         conversation_id = request.GET.get("conversation_id")
@@ -55,4 +63,4 @@ def chat_api(request):
     ChatMessage.objects.create(conversation=conversation, role="user", content=message)
     ChatMessage.objects.create(conversation=conversation, role="assistant", content=reply)
 
-    return JsonResponse({"reply": reply, "conversation_id": conversation.id})
+    return JsonResponse({"reply": reply, "conversation_id": conversation.id, "title": conversation.title})

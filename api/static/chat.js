@@ -3,6 +3,8 @@ const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
+const chatListEl = document.getElementById('chatList');
+const chatTitleEl = document.getElementById('chatTitle');
 
 let conversationId = sessionStorage.getItem('conversationId');
 
@@ -45,6 +47,14 @@ function getCsrfToken() {
 
 function formatTime(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function setChatTitle(title) {
+    chatTitleEl.textContent = title || 'New chat';
+}
+
+function showWelcome() {
+    messagesEl.innerHTML = welcomeBanner + welcomeMessage;
 }
 
 function appendMessage(role, text) {
@@ -101,6 +111,57 @@ function hideLoading() {
     if (loading) loading.remove();
 }
 
+async function loadConversations() {
+    try {
+        const response = await fetch('/api/conversations/');
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return;
+
+        chatListEl.innerHTML = '';
+        (data.conversations || []).forEach((conv) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'chat-item' + (String(conv.id) === String(conversationId) ? ' active' : '');
+            btn.dataset.id = conv.id;
+            btn.innerHTML = `
+                <svg class="chat-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                </svg>
+                <span class="chat-item-text">${conv.title || 'New chat'}</span>
+            `;
+            btn.addEventListener('click', () => switchConversation(conv.id, conv.title));
+            chatListEl.appendChild(btn);
+        });
+    } catch (error) {
+        // ignore
+    }
+}
+
+async function loadHistory(id) {
+    try {
+        const response = await fetch(`/api/chat/?conversation_id=${id}`);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.messages?.length) {
+            showWelcome();
+            return;
+        }
+
+        messagesEl.innerHTML = '';
+        data.messages.forEach((msg) => appendMessage(msg.role, msg.content));
+    } catch (error) {
+        showWelcome();
+    }
+}
+
+async function switchConversation(id, title) {
+    conversationId = String(id);
+    sessionStorage.setItem('conversationId', conversationId);
+    setChatTitle(title);
+    await loadHistory(id);
+    await loadConversations();
+    messageInput.focus();
+}
+
 async function sendMessage(text) {
     const banner = messagesEl.querySelector('.welcome-banner');
     if (banner) banner.remove();
@@ -130,8 +191,10 @@ async function sendMessage(text) {
         appendMessage('assistant', data.reply || 'No reply received.');
 
         if (data.conversation_id) {
-            conversationId = data.conversation_id;
+            conversationId = String(data.conversation_id);
             sessionStorage.setItem('conversationId', conversationId);
+            setChatTitle(data.title);
+            await loadConversations();
         }
     } catch (error) {
         hideLoading();
@@ -175,26 +238,23 @@ messageInput.addEventListener('input', () => {
 newChatBtn.addEventListener('click', () => {
     conversationId = null;
     sessionStorage.removeItem('conversationId');
-    messagesEl.innerHTML = welcomeBanner + welcomeMessage;
+    setChatTitle('New chat');
+    showWelcome();
+    loadConversations();
     messageInput.focus();
     updateSendButton();
 });
 
-async function loadHistory() {
-    if (!conversationId) return;
-
-    try {
-        const response = await fetch(`/api/chat/?conversation_id=${conversationId}`);
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.messages?.length) return;
-
-        messagesEl.innerHTML = '';
-        data.messages.forEach((msg) => appendMessage(msg.role, msg.content));
-    } catch (error) {
-        // ignore load errors on page open
+async function init() {
+    await loadConversations();
+    if (conversationId) {
+        const active = chatListEl.querySelector(`[data-id="${conversationId}"]`);
+        const title = active?.querySelector('.chat-item-text')?.textContent || 'Chat';
+        setChatTitle(title);
+        await loadHistory(conversationId);
     }
+    messageInput.focus();
+    updateSendButton();
 }
 
-loadHistory();
-messageInput.focus();
-updateSendButton();
+init();

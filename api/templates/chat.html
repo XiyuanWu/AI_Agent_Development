@@ -30,26 +30,7 @@
 
             <div class="sidebar-section">
                 <p class="sidebar-label">Recent</p>
-                <div class="chat-list">
-                    <button type="button" class="chat-item active">
-                        <svg class="chat-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
-                        </svg>
-                        <span class="chat-item-text">Getting started</span>
-                    </button>
-                    <button type="button" class="chat-item">
-                        <svg class="chat-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
-                        </svg>
-                        <span class="chat-item-text">Project ideas</span>
-                    </button>
-                    <button type="button" class="chat-item">
-                        <svg class="chat-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
-                        </svg>
-                        <span class="chat-item-text">Code review help</span>
-                    </button>
-                </div>
+                <div class="chat-list" id="chatList"></div>
             </div>
 
             <div class="sidebar-footer">
@@ -66,7 +47,7 @@
         <main class="chat-main">
             <header class="chat-header">
                 <div class="chat-header-left">
-                    <h2>Getting started</h2>
+                    <h2 id="chatTitle">New chat</h2>
                     <span class="model-badge">Gemini 3.0 Flash</span>
                 </div>
                 <div class="chat-header-actions">
@@ -132,6 +113,6 @@
     <script>
         window.CSRF_TOKEN = "{{ csrf_token }}";
     </script>
-    <script src="{% static 'chat.js' %}?v=3"></script>
+    <script src="{% static 'chat.js' %}?v=4"></script>
 </body>
 </html>
