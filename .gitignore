@@ -4,8 +4,8 @@ env/
 ENV/
 
 # Django local database
-db.sqlite3
-*.sqlite3
+# db.sqlite3
+# *.sqlite3
 
 # Python bytecode & cache
 __pycache__/

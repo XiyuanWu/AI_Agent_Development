@@ -13,8 +13,16 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
+
+# API keys (loaded from .env)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_MODEL_NAME = os.environ.get("MODEL_NAME", "gemini-3-flash-preview")
 
 
 # Quick-start development settings - unsuitable for production
