@@ -1,8 +1,6 @@
 from django.urls import path
-
-from . import views
+from django.views.generic import RedirectView
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('health/', views.health, name='health'),
+    path('chat/', RedirectView.as_view(url='/chat/', permanent=False)),
 ]
