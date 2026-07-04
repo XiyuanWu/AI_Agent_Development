@@ -147,20 +147,98 @@ body {
     gap: 0.125rem;
 }
 
+.chat-item-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    border-radius: var(--radius-md);
+}
+
+.chat-item-row:hover,
+.chat-item-row.menu-open {
+    background: var(--surface-hover);
+}
+
+.chat-item-row:has(.chat-item.active) {
+    background: var(--accent-light);
+}
+
 .chat-item {
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     text-align: left;
-    padding: 0.625rem 0.75rem;
+    padding: 0.625rem 0.25rem 0.625rem 0.75rem;
     border: none;
     border-radius: var(--radius-md);
     background: transparent;
     color: var(--text-secondary);
     font-size: 0.875rem;
     cursor: pointer;
+}
+
+.chat-item-menu-btn {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: background 0.15s, color 0.15s;
+}
+
+.chat-item-menu-btn:hover,
+.chat-item-row.menu-open .chat-item-menu-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+}
+
+.chat-item-menu-btn svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.chat-item-dropdown {
+    display: none;
+    position: absolute;
+    right: 0.5rem;
+    top: 100%;
+    min-width: 7.5rem;
+    margin-top: 0.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 20;
+    overflow: hidden;
+}
+
+.chat-item-row.menu-open .chat-item-dropdown {
+    display: block;
+}
+
+.chat-item-dropdown button {
+    width: 100%;
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    font-size: 0.8125rem;
+    cursor: pointer;
+}
+
+.chat-item-dropdown button:hover {
+    background: #fef2f2;
 }
 
 .chat-item-icon {
@@ -171,17 +249,18 @@ body {
 }
 
 .chat-item-text {
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .chat-item:hover {
-    background: var(--surface-hover);
+    background: transparent;
 }
 
 .chat-item.active {
-    background: var(--accent-light);
+    background: transparent;
     color: var(--accent);
     font-weight: 500;
 }

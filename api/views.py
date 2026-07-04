@@ -21,6 +21,19 @@ def conversations_api(request):
     return JsonResponse({"conversations": list(conversations)})
 
 
+def conversation_detail_api(request, conversation_id):
+    if request.method != "DELETE":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    try:
+        conversation = Conversation.objects.get(id=conversation_id)
+    except Conversation.DoesNotExist:
+        return JsonResponse({"error": "Conversation not found."}, status=404)
+
+    conversation.delete()
+    return JsonResponse({"ok": True})
+
+
 def chat_api(request):
     if request.method == "GET":
         conversation_id = request.GET.get("conversation_id")

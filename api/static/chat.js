@@ -111,14 +111,60 @@ function hideLoading() {
     if (loading) loading.remove();
 }
 
+function closeAllMenus() {
+    chatListEl.querySelectorAll('.chat-item-row.menu-open').forEach((row) => {
+        row.classList.remove('menu-open');
+    });
+}
+
+function startNewChat() {
+    conversationId = null;
+    sessionStorage.removeItem('conversationId');
+    setChatTitle('New chat');
+    showWelcome();
+    loadConversations();
+    messageInput.focus();
+    updateSendButton();
+}
+
+async function deleteConversation(id) {
+    closeAllMenus();
+    if (!confirm('Delete this chat?')) return;
+
+    try {
+        const response = await fetch(`/api/conversations/${id}/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCsrfToken() },
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            alert(data.error || 'Could not delete chat.');
+            return;
+        }
+
+        if (String(conversationId) === String(id)) {
+            startNewChat();
+            return;
+        }
+
+        await loadConversations();
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+}
+
 async function loadConversations() {
     try {
         const response = await fetch('/api/conversations/');
         const data = await response.json().catch(() => ({}));
         if (!response.ok) return;
 
+        closeAllMenus();
         chatListEl.innerHTML = '';
         (data.conversations || []).forEach((conv) => {
+            const row = document.createElement('div');
+            row.className = 'chat-item-row' + (String(conv.id) === String(conversationId) ? ' active-row' : '');
+
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'chat-item' + (String(conv.id) === String(conversationId) ? ' active' : '');
@@ -130,7 +176,40 @@ async function loadConversations() {
                 <span class="chat-item-text">${conv.title || 'New chat'}</span>
             `;
             btn.addEventListener('click', () => switchConversation(conv.id, conv.title));
-            chatListEl.appendChild(btn);
+
+            const menuBtn = document.createElement('button');
+            menuBtn.type = 'button';
+            menuBtn.className = 'chat-item-menu-btn';
+            menuBtn.setAttribute('aria-label', 'Chat options');
+            menuBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="1.75"></circle>
+                    <circle cx="12" cy="12" r="1.75"></circle>
+                    <circle cx="12" cy="19" r="1.75"></circle>
+                </svg>
+            `;
+            menuBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const isOpen = row.classList.contains('menu-open');
+                closeAllMenus();
+                if (!isOpen) row.classList.add('menu-open');
+            });
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'chat-item-dropdown';
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                deleteConversation(conv.id);
+            });
+            dropdown.appendChild(deleteBtn);
+
+            row.appendChild(btn);
+            row.appendChild(menuBtn);
+            row.appendChild(dropdown);
+            chatListEl.appendChild(row);
         });
     } catch (error) {
         // ignore
@@ -235,20 +314,18 @@ messageInput.addEventListener('input', () => {
     updateSendButton();
 });
 
-newChatBtn.addEventListener('click', () => {
-    conversationId = null;
-    sessionStorage.removeItem('conversationId');
-    setChatTitle('New chat');
-    showWelcome();
-    loadConversations();
-    messageInput.focus();
-    updateSendButton();
+newChatBtn.addEventListener('click', startNewChat);
+
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('.chat-item-row')) {
+        closeAllMenus();
+    }
 });
 
 async function init() {
     await loadConversations();
     if (conversationId) {
-        const active = chatListEl.querySelector(`[data-id="${conversationId}"]`);
+        const active = chatListEl.querySelector(`.chat-item[data-id="${conversationId}"]`);
         const title = active?.querySelector('.chat-item-text')?.textContent || 'Chat';
         setChatTitle(title);
         await loadHistory(conversationId);
