@@ -4,6 +4,8 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 
+let conversationId = sessionStorage.getItem('conversationId');
+
 const welcomeBanner = `
     <div class="welcome-banner">
         <div class="welcome-icon">
@@ -114,7 +116,7 @@ async function sendMessage(text) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCsrfToken(),
             },
-            body: JSON.stringify({ message: text }),
+            body: JSON.stringify({ message: text, conversation_id: conversationId }),
         });
 
         const data = await response.json().catch(() => ({}));
@@ -126,6 +128,11 @@ async function sendMessage(text) {
         }
 
         appendMessage('assistant', data.reply || 'No reply received.');
+
+        if (data.conversation_id) {
+            conversationId = data.conversation_id;
+            sessionStorage.setItem('conversationId', conversationId);
+        }
     } catch (error) {
         hideLoading();
         appendMessage('assistant', 'Network error. Please try again.');
@@ -166,10 +173,28 @@ messageInput.addEventListener('input', () => {
 });
 
 newChatBtn.addEventListener('click', () => {
+    conversationId = null;
+    sessionStorage.removeItem('conversationId');
     messagesEl.innerHTML = welcomeBanner + welcomeMessage;
     messageInput.focus();
     updateSendButton();
 });
 
+async function loadHistory() {
+    if (!conversationId) return;
+
+    try {
+        const response = await fetch(`/api/chat/?conversation_id=${conversationId}`);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.messages?.length) return;
+
+        messagesEl.innerHTML = '';
+        data.messages.forEach((msg) => appendMessage(msg.role, msg.content));
+    } catch (error) {
+        // ignore load errors on page open
+    }
+}
+
+loadHistory();
 messageInput.focus();
 updateSendButton();
