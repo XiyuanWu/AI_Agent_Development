@@ -4,9 +4,9 @@ env/
 ENV/
 
 # Django local database
-# db.sqlite3
+# db.sqlite3 is intentionally tracked for demo purposes.
+# Reset or delete before pushing if you added private chat data locally.
 # *.sqlite3
-
 # Python bytecode & cache
 __pycache__/
 *.py[cod]
