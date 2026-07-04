@@ -35,6 +35,12 @@ const welcomeMessage = `
     </div>
 `;
 
+function getCsrfToken() {
+    if (window.CSRF_TOKEN) return window.CSRF_TOKEN;
+    const match = document.cookie.match(/(^| )csrftoken=([^;]+)/);
+    return match ? match[2] : '';
+}
+
 function formatTime(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
@@ -78,6 +84,55 @@ function appendMessage(role, text) {
     message.appendChild(body);
     messagesEl.appendChild(message);
     messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    return message;
+}
+
+function showLoading() {
+    const message = appendMessage('assistant', 'Thinking...');
+    message.id = 'loadingMessage';
+    message.querySelector('.message-content p').style.color = '#9ca3af';
+}
+
+function hideLoading() {
+    const loading = document.getElementById('loadingMessage');
+    if (loading) loading.remove();
+}
+
+async function sendMessage(text) {
+    const banner = messagesEl.querySelector('.welcome-banner');
+    if (banner) banner.remove();
+
+    appendMessage('user', text);
+    showLoading();
+    sendBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({ message: text }),
+        });
+
+        const data = await response.json();
+        hideLoading();
+
+        if (!response.ok) {
+            appendMessage('assistant', data.error || 'Something went wrong. Please try again.');
+            return;
+        }
+
+        appendMessage('assistant', data.reply);
+    } catch (error) {
+        hideLoading();
+        appendMessage('assistant', 'Network error. Please check your connection and try again.');
+    } finally {
+        updateSendButton();
+        messageInput.focus();
+    }
 }
 
 function updateSendButton() {
@@ -89,14 +144,10 @@ chatForm.addEventListener('submit', (event) => {
     const text = messageInput.value.trim();
     if (!text) return;
 
-    const banner = messagesEl.querySelector('.welcome-banner');
-    if (banner) banner.remove();
-
-    appendMessage('user', text);
     messageInput.value = '';
     messageInput.style.height = 'auto';
     updateSendButton();
-    messageInput.focus();
+    sendMessage(text);
 });
 
 messageInput.addEventListener('keydown', (event) => {
@@ -117,6 +168,7 @@ messageInput.addEventListener('input', () => {
 newChatBtn.addEventListener('click', () => {
     messagesEl.innerHTML = welcomeBanner + welcomeMessage;
     messageInput.focus();
+    updateSendButton();
 });
 
 messageInput.focus();
