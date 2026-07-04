@@ -20,7 +20,7 @@ Live demo flow: open `/chat/`, send messages, switch conversations in the sideba
 ## Tech Stack
 
 | Layer | Technology |
--|
+|---|---|
 | Backend | Django 6, Python 3.13+ |
 | Database | SQLite (`db.sqlite3`) |
 | AI | Google Gemini (`google-genai`) |
