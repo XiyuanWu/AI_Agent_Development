@@ -49,6 +49,18 @@ function formatTime(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+function setMessageContent(contentEl, role, text) {
+    if (role === 'assistant' && window.marked) {
+        contentEl.classList.add('markdown-body');
+        contentEl.innerHTML = marked.parse(text);
+        return;
+    }
+
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    contentEl.appendChild(paragraph);
+}
+
 function setChatTitle(title) {
     chatTitleEl.textContent = title || 'New chat';
 }
@@ -86,9 +98,7 @@ function appendMessage(role, text) {
 
     const content = document.createElement('div');
     content.className = 'message-content';
-    const paragraph = document.createElement('p');
-    paragraph.textContent = text;
-    content.appendChild(paragraph);
+    setMessageContent(content, role, text);
 
     body.appendChild(meta);
     body.appendChild(content);

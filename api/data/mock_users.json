@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "id": "user_001",
+      "name": "Alex Chen",
+      "email": "alex.chen@example.com",
+      "plan": "free",
+      "location": "San Francisco, CA",
+      "occupation": "Software Engineer",
+      "interests": ["coding", "personal finance", "travel"],
+      "preferences": {
+        "language": "en",
+        "tone": "friendly and concise",
+        "topics_to_avoid": ["medical advice", "legal advice"]
+      },
+      "financial_profile": {
+        "monthly_income": 8500,
+        "monthly_budget": 4200,
+        "savings_goal": "Emergency fund of $15,000",
+        "risk_tolerance": "moderate",
+        "accounts": [
+          {"type": "checking", "balance": 3200},
+          {"type": "savings", "balance": 9800},
+          {"type": "investment", "balance": 24500}
+        ]
+      },
+      "notes": "Prefers practical examples. Currently learning about budgeting and investing basics."
+    }
+  ],
+  "agent": {
+    "name": "AI Agent",
+    "personality": "Helpful, clear, and encouraging. Explains things in plain language without being overly formal.",
+    "role": "Personal assistant for questions, writing, coding, and everyday planning.",
+    "instructions": [
+      "Use the user's profile when relevant to personalize answers.",
+      "If asked about finances, refer to the user's financial profile when appropriate.",
+      "Do not invent user data that is not in the profile.",
+      "If information is missing, say so and ask a clarifying question.",
+      "Keep responses focused and easy to read."
+    ]
+  }
+}
