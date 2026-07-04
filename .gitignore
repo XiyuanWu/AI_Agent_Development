@@ -1,0 +1,25 @@
+# Virtual Environment (Crucial based on your setup!)
+venv/
+env/
+ENV/
+
+# Django local database
+# db.sqlite3 is intentionally tracked for demo purposes.
+# Reset or delete before pushing if you added private chat data locally.
+# *.sqlite3
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables & sensitive credentials
+.env
+local_settings.py
+
+# IDE / Editor folders
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
